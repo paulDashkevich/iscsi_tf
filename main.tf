@@ -12,7 +12,7 @@ terraform {
 }
 
 provider "ah" {
-	access_token = "1xvZdwryhcdhFsN4rh8aU1hE"
+	access_token = "acces_token"
 }
 resource "ah_cloud_server" "iscsi" {
    name         	    = "iscsi"
