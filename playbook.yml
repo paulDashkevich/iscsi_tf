@@ -1,0 +1,64 @@
+---
+- name: ISCSI | Install and configure ISCSI-INIT
+  hosts:  all 
+  become: yes
+  
+  tasks:
+  - name: SCSI | Install EPEL Repo package from standart repo
+    yum:
+        name: epel-release
+        state: present
+    tags:
+        - epel-package
+        - packages
+
+  - name: INSTALL TARGETCLI Utils 
+    yum:
+        name: targetcli
+        state: latest
+
+  - name: INSTALL ISCSI-INITIATOR-UTILS
+    yum:
+       name: iscsi-initiator-utils
+
+  - name: Set startup to automatic in /etc/iscsi/iscid.conf
+    lineinfile:
+      path: '/etc/iscsi/iscsid.conf'
+      regex: '^node\.startup\ =\ manual'
+      line: 'node.startup = automatic'
+      owner: 'adminroot'
+      group: 'adminroot'
+      mode: '0600'
+
+  - name: Copy file 
+    copy:
+      src: iscsi.sh
+      dest: /home/adminroot/iscsi.sh
+      owner: adminroot
+      mode: +x
+
+  - name: Run Shell Script 
+    shell: /home/adminroot/iscsi.sh
+
+  handlers:
+    - name: restart iscsid
+      systemd:
+        name: iscsid
+        state: restarted
+        enabled: yes
+    
+    - name: start iscsid
+      systemd:
+        name: iscsid
+        state: started
+
+    - name: restart targetcli
+      systemd:
+        name: targetcli
+        state: restarted
+        enabled: yes
+
+    - name: start targetcli
+      systemd:
+        name: targetcli
+        state: started
